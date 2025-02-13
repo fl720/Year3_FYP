@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Viewer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+        }
+        video {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            border: 2px solid black;
+            width: 60vw;
+            height: 45vw;
+            min-width: 60vw;
+            min-height: 45vw;
+            max-width: 90vw;
+            max-height: 67.5vw;
+        }
+        button {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        footer {
+            position: absolute;
+            bottom: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <video id="webcam" autoplay></video>
+    <button id="toggleWebcam" onclick="toggleWebcam()">Turn Off Webcam</button>
+    <footer id="datetime"></footer>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const button = document.getElementById('toggleWebcam');
+        let stream;
+        
+        async function startWebcam() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (error) {
+                console.error("Error accessing webcam: ", error);
+            }
+        }
+
+        function stopWebcam() {
+            if (stream) {
+                let tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+        }
+
+        function toggleWebcam() {
+            if (video.srcObject) {
+                stopWebcam();
+                button.innerText = "Turn On Webcam";
+            } else {
+                startWebcam();
+                button.innerText = "Turn Off Webcam";
+            }
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            document.getElementById('datetime').innerText = now.toLocaleString();
+        }
+
+        startWebcam();
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>
