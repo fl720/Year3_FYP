@@ -1,4 +1,5 @@
 function risk_output = getHeatIndexRisk(temp_C, humidity_percent)
+%input temperature in degree C, humidity level in %
     % Load data
     data = load('heat_index_labeled.mat');  
     cluster_data = load('cluster_map.mat'); 
