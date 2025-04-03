@@ -36,8 +36,9 @@ def comfort_level( temperature , humidity ) :
             outputText += temperature_output[3]
         elif HI >= 27 : 
             outputText += temperature_output[2] 
-        else : 
-            outputText = "Normal."
+            
+    if outputText == "" : 
+        outputText = "Normal."
         
     return outputText 
 
