@@ -1,1 +1,0 @@
-Base_path = "comfitness_level/"
