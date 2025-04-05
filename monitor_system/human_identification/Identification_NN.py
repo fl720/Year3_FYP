@@ -6,12 +6,12 @@ import numpy as np
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from constant import Base_path 
 
 
 # Load dataset and preprocess data
 def load_data(filename):
-    df = pd.read_csv(filename)
+    # df = pd.read_csv(filename)
+    df = load(filename)
     
     X = df[["Temperature", "Humidity"]].values
     y = df["Comfort Level"].values
@@ -26,23 +26,33 @@ def load_data(filename):
 
 # Define Neural Network Model
 class ComfortNN(nn.Module):
-    def __init__(self, input_size, output_size):
+    def __init__(self, Fig_size):
         super(ComfortNN, self).__init__()
 
-        # Feedfoward Network
-        self.layer1 = nn.Linear(input_size,16)
-        self.layer2 = nn.Linear(16,output_size)
-        self.activation = nn.ReLU()
-    
-    def forward(self, x):
-        x = self.layer1(x)
-        x = self.activation(x)
-        x = self.layer2(x)
-        x = self.activation(x)
+        hidden_state_size = 16 * 16 * 3
+
+        self.cnn = CNN(Fig_size, hidden_state_size)
+
+        self.ffn = FFN(hidden_state_size, 8)
+
+        self.output_layer = FFN(16, 2)
+
+
+    def forward(self, fig1, fig2):
+
+        x1 = self.cnn(fig1)
+        x1 = self.ffn(x1)
+
+        x2 = self.cnn(fig2)
+        x2 = self.ffn(x2)
+
+        x = [x1, x2]
+        
+        x = self.output_layer(x)
         return x
 
 # Train Model
-def train_model(X, y, epochs=2000, lr=0.01):
+def train_model(X, y, epochs=300, lr=0.01):
     output_size = len(np.unique(y))
     model = ComfortNN(input_size=2, output_size=output_size)
     
@@ -62,17 +72,17 @@ def train_model(X, y, epochs=2000, lr=0.01):
         if (epoch+1) % 10 == 0:
             print(f"Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}")
     
-    torch.save(scaler, f"./{Base_path}/model/scaler.pth")
-    torch.save(label_encoder, f"./{Base_path}/model/label_encoder.pth")
-    torch.save(model.state_dict(), f"./{Base_path}/model/comfitness_model.pth")
-    torch.save(torch.tensor(output_size), f"./{Base_path}/model/output_size.pth")
+    torch.save(scaler, "./comfitness_level/model/scaler.pth")
+    torch.save(label_encoder, "./comfitness_level/model/label_encoder.pth")
+    torch.save(model.state_dict(), "./comfitness_level/model/comfitness_model.pth")
+    torch.save(torch.tensor(output_size), "./comfitness_level/model/output_size.pth")
 
     # Save scaler and label encoder using joblib instead of torch.save
-    joblib.dump(scaler, f"./{Base_path}/model/scaler.pkl")
-    joblib.dump(label_encoder, f"./{Base_path}/model/label_encoder.pkl")
+    joblib.dump(scaler, "./comfitness_level/model/scaler.pkl")
+    joblib.dump(label_encoder, "./comfitness_level/model/label_encoder.pkl")
     print("Model and preprocessors saved successfully.")
 
 if __name__ == "__main__":
-    filename = f"./{Base_path}/data/comfitness_training.csv"
+    filename = "./comfitness_level/data/comfitness_training.csv"
     X, y, label_encoder, scaler = load_data(filename)
     train_model(X, y)

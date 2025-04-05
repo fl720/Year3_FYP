@@ -2,18 +2,17 @@ import torch
 import numpy as np
 import joblib
 from comfitness_level_NN import ComfortNN
-from constant import Base_path 
 
 # Load trained model and preprocessors
 def load_model():
-    output_size = torch.load(f"./{Base_path}model/output_size.pth").item()
+    output_size = torch.load("./comfitness_level/model/output_size.pth").item()
     model = ComfortNN(input_size=2, output_size=output_size)
-    model.load_state_dict(torch.load(f"./{Base_path}model/comfitness_model.pth"))
+    model.load_state_dict(torch.load("./comfitness_level/model/comfitness_model.pth"))
     model.eval()
 
     # Load scaler and label encoder using joblib instead of torch.load
-    scaler = joblib.load(f"./{Base_path}model/scaler.pkl")
-    label_encoder = joblib.load(f"./{Base_path}model/label_encoder.pkl")
+    scaler = joblib.load("./comfitness_level/model/scaler.pkl")
+    label_encoder = joblib.load("./comfitness_level/model/label_encoder.pkl")
 
     return model, scaler, label_encoder
 
@@ -33,7 +32,7 @@ def predict_comfort(temperature, humidity):
 
 # Example Usage
 if __name__ == "__main__":
-    temp = 18 # Example temperature
-    humidity = 44  # Example humidity level
+    temp = 12 # Example temperature
+    humidity = 65  # Example humidity level
     result = predict_comfort(temp, humidity)
     print(f"Predicted Comfort Level for {temp}°C and {humidity}% humidity: {result}")
