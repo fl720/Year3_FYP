@@ -7,6 +7,8 @@ Key file are comfitness_level_NN.py and model file.
 
 test_comfitness.py indicates how you can implement this neuron network. 
 
+The best Loss so far is 0.23. 
+
 ## How this was achieved. 
 In data file, using comfort_level function in comfitness_level.py to generate range of random data sets with temperature and humidity. 
 This will give us training sets in a csv file. comfitness_level_NN.py will load the data set and used it for training the neuron network with 2 linear layers. 
