@@ -15,3 +15,6 @@ During the training process, it will use the cross entropy to calculate the loss
 It will print the losses for every 10 epoches and we sugeest at least 500 epoches or you can run the file multiple times before a satisified losses level is given. 
 
 All the data and neuron network itself will be saved in model file. 
+
+## How to use it.
+Download model file, use test_comfitness_nn.py as an example to see how to implement the neuron network.
