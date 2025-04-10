@@ -20,3 +20,12 @@ All the data and neuron network itself will be saved in model file.
 
 ## How to use it.
 Download model file, use test_comfitness_nn.py as an example to see how to implement the neuron network.
+
+
+# Version 2.0
+Removing the second activation function after second layer improved the loss level to about 0.03 to 0.06. 
+This is due to **ReLU after the last layer will zero-out negative logits, hurting your classification.**
+
+The best loss so far is 0.0289. 
+
+
