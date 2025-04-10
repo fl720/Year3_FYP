@@ -1,10 +1,8 @@
 import random
 import csv
-from comfitness_level.data.comfitness_level import comfort_level
+from comfitness_level import comfort_level
 
-from comfitness_level.constant import Base_path
-
-def generate_data(filename=f"./{Base_path}data/comfitness_training.csv", num_samples=100):
+def generate_data(filename=f"./comfitness_level/data/comfitness_training.csv", num_samples=500):
     # Define the range for temperature and humidity
     temp_range = (-20, 50)
     humidity_range = (0, 100)

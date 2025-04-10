@@ -6,6 +6,8 @@ import numpy as np
 import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+
 from constant import Base_path 
 
 
@@ -15,11 +17,14 @@ def load_data(filename):
     
     X = df[["Temperature", "Humidity"]].values
     y = df["Comfort Level"].values
+    print( f"Training data size: {len(X)}")
     
     label_encoder = LabelEncoder()
     y = label_encoder.fit_transform(y)
     
+    # ----- NORMALISATION -----
     scaler = StandardScaler()
+    # scaler = MinMaxScaler(feature_range=(0, 1))
     X = scaler.fit_transform(X)
     
     return X, y, label_encoder, scaler
@@ -38,7 +43,7 @@ class ComfortNN(nn.Module):
         x = self.layer1(x)
         x = self.activation(x)
         x = self.layer2(x)
-        x = self.activation(x)
+        # x = self.activation(x)
         return x
 
 # Train Model

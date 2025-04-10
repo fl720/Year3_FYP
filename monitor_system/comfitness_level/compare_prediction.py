@@ -1,3 +1,5 @@
+import csv
+from data.comfitness_level import comfort_level  # make sure both are imported
 import torch
 import numpy as np
 import joblib
@@ -16,8 +18,6 @@ def load_model():
     label_encoder = joblib.load(f"./{Base_path}model/label_encoder.pkl")
 
     return model, scaler, label_encoder
-
-# Function to predict comfort level
 def predict_comfort(temperature, humidity):
     model, scaler, label_encoder = load_model()
     
@@ -31,9 +31,26 @@ def predict_comfort(temperature, humidity):
     
     return label_encoder.inverse_transform([predicted_label])[0]
 
-# Example Usage
-if __name__ == "__main__":
-    temp = 28 # Example temperature
-    humidity = 90 # Example humidity level
-    result = predict_comfort(temp, humidity)
-    print(f"Predicted Comfort Level for {temp}°C and {humidity}% humidity: {result}")
+# Define ranges
+temperature_range = range(-10, 45)  # -10°C to 44°C
+humidity_range = range(0, 101, 5)   # 0% to 100%, step 5%
+
+# Open CSV to write comparison result
+with open("comfort_comparison_matrix.csv", mode="w", newline='') as file:
+    writer = csv.writer(file)
+
+    # Write header: temperature values
+    header = ["Humidity \\ Temp (°C)"] + [str(temp) for temp in temperature_range]
+    writer.writerow(header)
+
+    # Iterate through each humidity row
+    for humidity in humidity_range:
+        row = [f"{humidity}%"]
+        for temp in temperature_range:
+            predicted = predict_comfort(temp, humidity)
+            expected = comfort_level(temp, humidity)
+            match = "Correct" if predicted == expected else "Incorrect"
+            row.append(match)
+        writer.writerow(row)
+
+print(" Comparison matrix saved to 'comfort_comparison_matrix.csv'.")
