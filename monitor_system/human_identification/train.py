@@ -6,6 +6,7 @@ import numpy as np
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader, random_split
 import torch.optim as optim
+import torchvision.transforms as T
 
 # ===========================
 # Dataset Class
@@ -14,6 +15,14 @@ class MultiFolderDataset(Dataset):
     def __init__(self, root_dir, transform=None):
         self.samples = []
         self.transform = transform
+
+        # FOR DATA ARGUMENTATION 
+        self.augment_rgb = T.Compose([
+            T.ToPILImage(),
+            T.RandomHorizontalFlip(),
+            T.RandomRotation(10),
+            T.ToTensor()
+        ])
 
         # Iterate through subdirectories (sources)
         for folder in os.listdir(root_dir):
@@ -67,6 +76,8 @@ class MultiFolderDataset(Dataset):
         depth = cv2.resize(depth, (224, 224))
 
         rgb = torch.tensor(rgb).permute(2, 0, 1).float() / 255.0
+        if self.augment_rgb:
+            rgb = self.augment_rgb(rgb) 
         depth = torch.tensor(depth).unsqueeze(0).float() / 255.0
 
         label = torch.tensor(sample['label'])
@@ -79,23 +90,26 @@ class MultiFolderDataset(Dataset):
 class CoevolutionNet(nn.Module):
     def __init__(self):
         super(CoevolutionNet, self).__init__()
-        
+
         self.rgb_branch = nn.Sequential(
             nn.Conv2d(3, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-            nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2)
+            nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2)
         )
-        
+
         self.depth_branch = nn.Sequential(
             nn.Conv2d(1, 16, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
-            nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2)
-        )
-        
+            nn.Conv2d(16, 32, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+            nn.Conv2d(32, 64, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2)
+        ) 
         self.fusion = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(32 * 56 * 56 * 2, 256),
+            nn.Linear(64 * 28 * 28 * 2, 512),  # Updated input size
             nn.ReLU(),
-            nn.Linear(256, 6)  # 6 classes: 0 to 5
+            nn.Dropout(0.3),
+            nn.Linear(512, 6)
         )
+            
     
     def forward(self, rgb, depth):
         rgb_feat = self.rgb_branch(rgb)
@@ -126,6 +140,8 @@ def train_model():
     model = CoevolutionNet().to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.5)
+
 
     num_epochs = 10
     for epoch in range(num_epochs):
@@ -161,6 +177,8 @@ def train_model():
 
         avg_val_loss = total_val_loss / len(val_loader)
         print(f"Epoch {epoch+1}/{num_epochs}, Validation Loss: {avg_val_loss:.4f}")
+
+        scheduler.step() # adjust learning rate 
 
     # Save model
     torch.save(model.state_dict(), "./human_identification/model/coevolution_model.pth")
