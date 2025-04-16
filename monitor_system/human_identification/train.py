@@ -4,7 +4,7 @@ import torch
 import pandas as pd
 import numpy as np
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 import torch.optim as optim
 
 # ===========================
@@ -15,6 +15,7 @@ class MultiFolderDataset(Dataset):
         self.samples = []
         self.transform = transform
 
+        # Iterate through subdirectories (sources)
         for folder in os.listdir(root_dir):
             subdir = os.path.join(root_dir, folder)
             label_path = os.path.join(subdir, 'labels.csv')
@@ -27,18 +28,22 @@ class MultiFolderDataset(Dataset):
 
             df = pd.read_csv(label_path)
 
+            # Adding samples to the list
             for i in range(len(df)):
-                image_index = int(df.loc[i, 'index'])  # e.g. 1, 2, 3...
+                image_index = int(df.loc[i, 'index'])
                 label = int(df.loc[i, 'class'])
 
-                # Format to 4-digit number with leading zeros (e.g. 1 -> 0001)
+                # Format to 4-digit number (e.g. 1 -> 0001)
                 image_id = f"{image_index:04d}"
 
                 rgb_name = f"rgb_{image_id}.png"
                 depth_name = f"depth_{image_id}.png"
 
-                rgb_path = os.path.join(rgb_dir, rgb_name)
-                depth_path = os.path.join(depth_dir, depth_name)
+                # rgb_path = os.path.join(rgb_dir, rgb_name)
+                # depth_path = os.path.join(depth_dir, depth_name)
+                rgb_path = os.path.normpath(os.path.join(rgb_dir, rgb_name))
+                depth_path = os.path.normpath(os.path.join(depth_dir, depth_name))
+
 
                 if os.path.exists(rgb_path) and os.path.exists(depth_path):
                     self.samples.append({
@@ -107,13 +112,16 @@ def train_model():
     print(f"Training on device: {device}")
 
     dataset = MultiFolderDataset('./human_identification/data/')
-
-    # test oputput -------------------------
     print(f"Total samples found: {len(dataset)}")
 
-    loader = DataLoader(dataset, batch_size=16, shuffle=True)
-    print(f"Loaded dataset with {len(dataset)} samples")
+    # Split dataset into training and validation sets (80/20 or 70/30 ratio)
+    train_size = int(0.8 * len(dataset))  # 80% for training
+    val_size = len(dataset) - train_size  # 20% for validation
+    train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
+    # Create DataLoader for both train and validation sets
+    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False)
 
     model = CoevolutionNet().to(device)
     criterion = nn.CrossEntropyLoss()
@@ -123,7 +131,9 @@ def train_model():
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0.0
-        for rgb, depth, labels in loader:
+
+        # Training phase
+        for rgb, depth, labels in train_loader:
             rgb, depth, labels = rgb.to(device), depth.to(device), labels.to(device)
 
             outputs = model(rgb, depth)
@@ -135,8 +145,22 @@ def train_model():
 
             total_loss += loss.item()
 
-        avg_loss = total_loss / len(loader)
+        avg_loss = total_loss / len(train_loader)
         print(f"Epoch {epoch+1}/{num_epochs}, Loss: {avg_loss:.4f}")
+
+        # Validation phase
+        model.eval()
+        total_val_loss = 0.0
+        with torch.no_grad():
+            for rgb, depth, labels in val_loader:
+                rgb, depth, labels = rgb.to(device), depth.to(device), labels.to(device)
+
+                outputs = model(rgb, depth)
+                loss = criterion(outputs, labels)
+                total_val_loss += loss.item()
+
+        avg_val_loss = total_val_loss / len(val_loader)
+        print(f"Epoch {epoch+1}/{num_epochs}, Validation Loss: {avg_val_loss:.4f}")
 
     # Save model
     torch.save(model.state_dict(), "./human_identification/model/coevolution_model.pth")
@@ -145,4 +169,3 @@ def train_model():
 
 if __name__ == "__main__":
     train_model()
-    
