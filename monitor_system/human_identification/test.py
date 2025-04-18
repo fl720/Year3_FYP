@@ -58,7 +58,7 @@ def test_model():
             output = model(rgb, depth)
             predicted_class = torch.argmax(output, dim=1).item()
             predicted_label = class_names[predicted_class]
-            print(f"{filename} => Predicted: {predicted_label}")
+            # print(f"{filename} => Predicted: {predicted_label}")
             predictions.append((filename, predicted_class))
 
     # Save predictions to a text file
