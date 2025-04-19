@@ -1,0 +1,103 @@
+
+
+Human Identification:
+����First Version; image size:15403
+����loss: 0.1353
+����loss:0.0958 
+	time: 1hr 30 min 
+	Second Version (upgraded CNN) 
+		Loss: 0.1341 (20 EPOCHES)
+		Loss: 0.1044
+		Loss: 0.0845
+
+Training on device: cpu
+Total samples found: 15403
+Epoch 1/20, Train Loss: 1.1825
+Epoch 1/20, Val Loss: 1.0032
+Epoch 2/20, Train Loss: 0.7065
+Epoch 2/20, Val Loss: 0.7199
+Epoch 3/20, Train Loss: 0.5153
+Epoch 3/20, Val Loss: 0.6198
+Epoch 4/20, Train Loss: 0.4135
+Epoch 4/20, Val Loss: 0.4900
+Epoch 5/20, Train Loss: 0.3409
+Epoch 5/20, Val Loss: 0.4181
+Epoch 6/20, Train Loss: 0.2993
+Epoch 6/20, Val Loss: 0.3792
+Epoch 7/20, Train Loss: 0.2632
+Epoch 7/20, Val Loss: 0.3323
+Epoch 8/20, Train Loss: 0.2327
+Epoch 8/20, Val Loss: 0.2949
+Epoch 9/20, Train Loss: 0.2166
+Epoch 9/20, Val Loss: 0.2788
+Epoch 10/20, Train Loss: 0.1953
+Epoch 10/20, Val Loss: 0.2809
+Epoch 11/20, Train Loss: 0.1845
+Epoch 11/20, Val Loss: 0.2392
+Epoch 12/20, Train Loss: 0.1730
+Epoch 12/20, Val Loss: 0.2168
+Epoch 13/20, Train Loss: 0.1596
+Epoch 13/20, Val Loss: 0.2082
+Epoch 14/20, Train Loss: 0.1466
+Epoch 14/20, Val Loss: 0.2037
+Epoch 15/20, Train Loss: 0.1375
+Epoch 15/20, Val Loss: 0.1894
+Epoch 16/20, Train Loss: 0.1281
+Epoch 16/20, Val Loss: 0.1894
+Epoch 17/20, Train Loss: 0.1280
+Epoch 17/20, Val Loss: 0.1698
+Epoch 18/20, Train Loss: 0.1165
+Epoch 18/20, Val Loss: 0.1718
+Epoch 19/20, Train Loss: 0.1102
+Epoch 19/20, Val Loss: 0.1792
+Epoch 20/20, Train Loss: 0.1044
+Epoch 20/20, Val Loss: 0.1557
+Model saved as coevolution_model.pth
+
+
+
+Training on device: cpu
+Total samples found: 15403
+Epoch 1/20, Train Loss: 1.2017
+Epoch 1/20, Val Loss: 1.0452
+Epoch 2/20, Train Loss: 0.7598
+Epoch 2/20, Val Loss: 0.7183
+Epoch 3/20, Train Loss: 0.5394
+Epoch 3/20, Val Loss: 0.5749
+Epoch 4/20, Train Loss: 0.4162
+Epoch 4/20, Val Loss: 0.4655
+Epoch 5/20, Train Loss: 0.3332
+Epoch 5/20, Val Loss: 0.4180
+Epoch 6/20, Train Loss: 0.2836
+Epoch 6/20, Val Loss: 0.3881
+Epoch 7/20, Train Loss: 0.2390
+Epoch 7/20, Val Loss: 0.3773
+Epoch 8/20, Train Loss: 0.2101
+Epoch 8/20, Val Loss: 0.3180
+Epoch 9/20, Train Loss: 0.1897
+Epoch 9/20, Val Loss: 0.2632
+Epoch 10/20, Train Loss: 0.1700
+Epoch 10/20, Val Loss: 0.2286
+Epoch 11/20, Train Loss: 0.1595
+Epoch 11/20, Val Loss: 0.2222
+Epoch 12/20, Train Loss: 0.1378
+Epoch 12/20, Val Loss: 0.2264
+Epoch 13/20, Train Loss: 0.1310
+Epoch 13/20, Val Loss: 0.2128
+Epoch 14/20, Train Loss: 0.1186
+Epoch 14/20, Val Loss: 0.2097
+Epoch 15/20, Train Loss: 0.1134
+Epoch 15/20, Val Loss: 0.1772
+Epoch 16/20, Train Loss: 0.1068
+Epoch 16/20, Val Loss: 0.1804
+Epoch 17/20, Train Loss: 0.0988
+Epoch 17/20, Val Loss: 0.1627
+Epoch 18/20, Train Loss: 0.0909
+Epoch 18/20, Val Loss: 0.1613
+Epoch 19/20, Train Loss: 0.0893
+Epoch 19/20, Val Loss: 0.1641
+Epoch 20/20, Train Loss: 0.0845
+Epoch 20/20, Val Loss: 0.1637
+Model saved as coevolution_model.pth
+
+
