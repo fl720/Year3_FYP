@@ -101,7 +101,8 @@ Epoch 20/20, Val Loss: 0.1637
 Model saved as coevolution_model.pth
 
 
-
+New Model
+fixed photo
 Training on device: cpu
 Total samples found: 10592
 Total samples found: 4811
@@ -146,4 +147,148 @@ Epoch 19/20, Val Loss: 5.1562
 Epoch 20/20, Train Loss: 0.3800
 Epoch 20/20, Val Loss: 5.3184
 
+
+
+Training on device: cpu
+Total samples found: 10592
+Total samples found: 4811
+Epoch 1/20, Train Loss: 1.3286
+Epoch 1/20, Val Loss: 1.9181
+Model saved as coevolution_model.pth
+Epoch 2/20, Train Loss: 0.9351
+Epoch 2/20, Val Loss: 2.7489
+Epoch 3/20, Train Loss: 0.7473
+Epoch 3/20, Val Loss: 3.7361
+Epoch 4/20, Train Loss: 0.6318
+Epoch 4/20, Val Loss: 2.7612
+Epoch 5/20, Train Loss: 0.5270
+Epoch 5/20, Val Loss: 3.6726
+Epoch 6/20, Train Loss: 0.4913
+Epoch 6/20, Val Loss: 5.5035
+Epoch 7/20, Train Loss: 0.4793
+Epoch 7/20, Val Loss: 3.5350
+Epoch 8/20, Train Loss: 0.4090
+Epoch 8/20, Val Loss: 3.4686
+Epoch 9/20, Train Loss: 0.3867
+Epoch 9/20, Val Loss: 3.4955
+Epoch 10/20, Train Loss: 0.3763
+Epoch 10/20, Val Loss: 5.2404
+Epoch 11/20, Train Loss: 0.3392
+Epoch 11/20, Val Loss: 3.1620
+Epoch 12/20, Train Loss: 0.3298
+Epoch 12/20, Val Loss: 4.0447
+Epoch 13/20, Train Loss: 0.3057
+Epoch 13/20, Val Loss: 5.7786
+Epoch 14/20, Train Loss: 0.2884
+Epoch 14/20, Val Loss: 3.4793
+Epoch 15/20, Train Loss: 0.2778
+Epoch 15/20, Val Loss: 3.1996
+Epoch 16/20, Train Loss: 0.2794
+Epoch 16/20, Val Loss: 4.4998
+Epoch 17/20, Train Loss: 0.2618
+Epoch 17/20, Val Loss: 3.3987
+Epoch 18/20, Train Loss: 0.2564
+Epoch 18/20, Val Loss: 4.2451
+Epoch 19/20, Train Loss: 0.2564
+Epoch 19/20, Val Loss: 4.3577
+Epoch 20/20, Train Loss: 0.2466
+Epoch 20/20, Val Loss: 3.7414
+Final model saved.
+
+
+Training on device: cpu
+Total samples found: 10592
+Total samples found: 4811
+Epoch 1/20, Train Loss: 1.3949
+Epoch 1/20, Val Loss: 1.7462
+Model saved as coevolution_model.pth
+Epoch 2/20, Train Loss: 1.2821
+Epoch 2/20, Val Loss: 1.2460
+Model saved as coevolution_model.pth
+Epoch 3/20, Train Loss: 1.1105
+Epoch 3/20, Val Loss: 2.6594
+Epoch 4/20, Train Loss: 1.0176
+Epoch 4/20, Val Loss: 4.4657
+Epoch 5/20, Train Loss: 0.9232
+Epoch 5/20, Val Loss: 1.9073
+Epoch 6/20, Train Loss: 0.8127
+Epoch 6/20, Val Loss: 1.5479
+Epoch 7/20, Train Loss: 0.7548
+Epoch 7/20, Val Loss: 1.8502
+Epoch 8/20, Train Loss: 0.7133
+Epoch 8/20, Val Loss: 2.0323
+Epoch 9/20, Train Loss: 0.6512
+Epoch 9/20, Val Loss: 1.9347
+Epoch 10/20, Train Loss: 0.6268
+Epoch 10/20, Val Loss: 1.9543
+Epoch 11/20, Train Loss: 0.6131
+Epoch 11/20, Val Loss: 2.2234
+Epoch 12/20, Train Loss: 0.5724
+Epoch 12/20, Val Loss: 2.3552
+Epoch 13/20, Train Loss: 0.5607
+Epoch 13/20, Val Loss: 2.2846
+Epoch 14/20, Train Loss: 0.5538
+Epoch 14/20, Val Loss: 2.4038
+Epoch 15/20, Train Loss: 0.5483
+Epoch 15/20, Val Loss: 2.3712
+Epoch 16/20, Train Loss: 0.5318
+Epoch 16/20, Val Loss: 2.2421
+Epoch 17/20, Train Loss: 0.5167
+Epoch 17/20, Val Loss: 2.3434
+Epoch 18/20, Train Loss: 0.5101
+Epoch 18/20, Val Loss: 2.3976
+Epoch 19/20, Train Loss: 0.5056
+Epoch 19/20, Val Loss: 2.3416
+Epoch 20/20, Train Loss: 0.5156
+Epoch 20/20, Val Loss: 2.4288
+Final model saved.
+
+
+chatgbt new model -- lighter frame + overfitting solving 
+Training on device: cpu
+Total samples found: 10592
+Total samples found: 4811
+Epoch 1/20, Train Loss: 1.6807
+Epoch 1: Train Loss = 1.6807, Val Loss = 1.6255
+Model saved (best so far)
+Epoch 2/20, Train Loss: 1.5941
+Epoch 2: Train Loss = 1.5941, Val Loss = 1.7251
+Epoch 3/20, Train Loss: 1.5570
+Epoch 3: Train Loss = 1.5570, Val Loss = 1.5511
+Model saved (best so far)
+Epoch 4/20, Train Loss: 1.5330
+Epoch 4: Train Loss = 1.5330, Val Loss = 1.6039
+Epoch 5/20, Train Loss: 1.5200
+Epoch 5: Train Loss = 1.5200, Val Loss = 1.8078
+Epoch 6/20, Train Loss: 1.4977
+Epoch 6: Train Loss = 1.4977, Val Loss = 1.8844
+Epoch 7/20, Train Loss: 1.4685
+Epoch 7: Train Loss = 1.4685, Val Loss = 1.6560
+Epoch 8/20, Train Loss: 1.4347
+Epoch 8: Train Loss = 1.4347, Val Loss = 1.7343
+Epoch 9/20, Train Loss: 1.4353
+Epoch 9: Train Loss = 1.4353, Val Loss = 1.6039
+Epoch 10/20, Train Loss: 1.3990
+Epoch 10: Train Loss = 1.3990, Val Loss = 1.7283
+Epoch 11/20, Train Loss: 1.3887
+Epoch 11: Train Loss = 1.3887, Val Loss = 1.6001
+Epoch 12/20, Train Loss: 1.3626
+Epoch 12: Train Loss = 1.3626, Val Loss = 1.7398
+Epoch 13/20, Train Loss: 1.3396
+Epoch 13: Train Loss = 1.3396, Val Loss = 1.7125
+Epoch 14/20, Train Loss: 1.3327
+Epoch 14: Train Loss = 1.3327, Val Loss = 1.6455
+Epoch 15/20, Train Loss: 1.3131
+Epoch 15: Train Loss = 1.3131, Val Loss = 1.6958
+Epoch 16/20, Train Loss: 1.3025
+Epoch 16: Train Loss = 1.3025, Val Loss = 1.6680
+Epoch 17/20, Train Loss: 1.2936
+Epoch 17: Train Loss = 1.2936, Val Loss = 1.7397
+Epoch 18/20, Train Loss: 1.2821
+Epoch 18: Train Loss = 1.2821, Val Loss = 1.7227
+Epoch 19/20, Train Loss: 1.2816
+Epoch 19: Train Loss = 1.2816, Val Loss = 1.7670
+Epoch 20/20, Train Loss: 1.2688
+Epoch 20: Train Loss = 1.2688, Val Loss = 1.7261
+Final model saved.
 
