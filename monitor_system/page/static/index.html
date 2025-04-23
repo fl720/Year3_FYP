@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Monitoring System</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: row;
+      gap: 30px;
+      padding: 20px;
+    }
+    .monitor, .weather {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      width: 45%;
+    }
+    video {
+      width: 100%;
+      border-radius: 8px;
+    }
+    canvas {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="monitor">
+    <h2>Camera Monitor</h2>
+    <video id="video" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+  </div>
+
+  <div class="weather">
+    <h2>Weather & Health</h2>
+    <p><strong>Temperature:</strong> <span id="temperature">Loading...</span> °C</p>
+    <p><strong>Humidity:</strong> <span id="humidity">Loading...</span> %</p>
+    <p><strong>Message:</strong> <span id="message">Loading...</span></p>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Start the webcam
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      video.srcObject = stream;
+    });
+
+    // Capture 2 frames per second
+    setInterval(() => {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        const now = new Date();
+        const filename = `cam_sc/${now.toISOString().replace(/[:.]/g, '-')}.png`;
+        const formData = new FormData();
+        formData.append('image', blob, filename);
+
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+      }, 'image/png');
+    }, 500);
+
+    // Fetch weather & message
+    <!-- Only modified section shown below -->
+    let city = null;
+    let lat = null, lon = null;
+
+    // Try to get user's location
+    function detectLocation(callback) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          lat = position.coords.latitude;
+          lon = position.coords.longitude;
+          callback();
+        }, () => {
+          askCity(callback); // If user denies
+        });
+      } else {
+        askCity(callback);
+      }
+    }
+
+    // Ask user to select a city
+    function askCity(callback) {
+      city = prompt("Enter your city name (e.g. London, Tokyo):");
+      callback();
+    }
+
+    // Fetch weather
+    function updateWeather() {
+      let query = city ? `city=${encodeURIComponent(city)}` : `lat=${lat}&lon=${lon}`;
+      fetch(`/weather?${query}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('temperature').textContent = data.temperature.toFixed(1);
+          document.getElementById('humidity').textContent = data.humidity.toFixed(1);
+          document.getElementById('message').textContent = data.message;
+        });
+    }
+
+    detectLocation(() => {
+      updateWeather();
+      setInterval(updateWeather, 10000);
+    });
+  </script>
+
+
+    setInterval(updateWeather, 10000); // update every 10 seconds
+    updateWeather();
+  </script>
+</body>
+</html>
