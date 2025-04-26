@@ -2,13 +2,14 @@ from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 import os
 import requests
-import comfitness.comfitness as cf
+import nn_model.comfitness as cf
+import nn_model.pose_identification as pi 
 
 app = Flask(__name__)
-UPLOAD_FOLDER = 'cam_sc'
+UPLOAD_FOLDER = './page'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'  # Replace this!
+API_KEY = '3f9f172deb25f1fcb6045cd7a82f2b1c'  
 
 @app.route('/')
 def index():
@@ -37,7 +38,7 @@ def weather():
         res = requests.get(url).json()
         temp = res['main']['temp']
         humidity = res['main']['humidity']
-        message = cf.evaluate(temp, humidity)
+        message = cf.Comfitness.getComfitness(temp, humidity)
         return jsonify({
             'temperature': temp,
             'humidity': humidity,
