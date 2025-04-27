@@ -10,6 +10,7 @@ UPLOAD_FOLDER = './page'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 API_KEY = '3f9f172deb25f1fcb6045cd7a82f2b1c'  
+BASE_URL = 'https://api.openweathermap.org/data/2.5/weather'
 
 @app.route('/')
 def index():
@@ -28,24 +29,37 @@ def weather():
     lon = request.args.get('lon')
 
     if city:
-        url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&units=metric&appid={API_KEY}'
+        params = {
+            'q': city,
+            'appid': API_KEY,
+            'units': 'metric'
+        }
     elif lat and lon:
-        url = f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={API_KEY}'
+        params = {
+            'lat': lat,
+            'lon': lon,
+            'appid': API_KEY,
+            'units': 'metric'
+        }
     else:
-        return jsonify({'error': 'Location required'}), 400
+        return jsonify({'error': 'City or coordinates required'}), 400
 
-    try:
-        res = requests.get(url).json()
-        temp = res['main']['temp']
-        humidity = res['main']['humidity']
-        message = cf.Comfitness.getComfitness(temp, humidity)
-        return jsonify({
-            'temperature': temp,
-            'humidity': humidity,
-            'message': message
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    response = requests.get(BASE_URL, params=params)
+    data = response.json()
+
+    if response.status_code != 200:
+        return jsonify({'error': data.get('message', 'Error fetching weather')}), response.status_code
+
+    temp = data['main']['temp']
+    humidity = data['main']['humidity']
+    comfitness_instance = cf.Comfitness()
+    message = comfitness_instance.getComfitness(temp, humidity)
+    
+    return jsonify({
+        'temperature': temp,
+        'humidity': humidity,
+        'message': message
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -93,21 +93,50 @@
     }
 
     // Fetch weather
-    function updateWeather() {
-      let query = city ? `city=${encodeURIComponent(city)}` : `lat=${lat}&lon=${lon}`;
-      fetch(`/weather?${query}`)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById('temperature').textContent = data.temperature.toFixed(1);
-          document.getElementById('humidity').textContent = data.humidity.toFixed(1);
-          document.getElementById('message').textContent = data.message;
+    function fetchWeather() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          fetch(`/weather?lat=${lat}&lon=${lon}`)
+            .then(res => res.json())
+            .then(updateWeather)
+            .catch(err => console.error(err));
+        }, () => {
+          const city = prompt('Enter your city:');
+          if (city) {
+            fetch(`/weather?city=${city}`)
+              .then(res => res.json())
+              .then(updateWeather)
+              .catch(err => console.error(err));
+          }
         });
+      } else {
+        const city = prompt('Enter your city:');
+        if (city) {
+          fetch(`/weather?city=${city}`)
+            .then(res => res.json())
+            .then(updateWeather)
+            .catch(err => console.error(err));
+        }
+      }
     }
 
-    detectLocation(() => {
-      updateWeather();
-      setInterval(updateWeather, 10000);
-    });
+    function updateWeather(data) {
+      if (data.error) {
+        document.getElementById('message').textContent = 'Error: ' + data.error;
+        return;
+      }
+      document.getElementById('temperature').textContent = data.temperature.toFixed(1) ;
+      document.getElementById('humidity').textContent = data.humidity.toFixed(1) ;
+      document.getElementById('message').textContent = data.message;
+    }
+
+    // Fetch weather once on page load
+    fetchWeather();
+
+    // Then refresh every 30 minutes (1800000 ms)
+    setInterval(fetchWeather, 1800000);
   </script>
 
 
