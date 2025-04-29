@@ -5,6 +5,7 @@
   <title>Monitor System</title>
   <style>
     body {
+      text-align: center;
       margin: 0;
       font-family: Arial, sans-serif;
     }
@@ -29,6 +30,7 @@
     video {
       width: 90%;
       max-width: 640px;
+      max-height: 480px;
       border: 2px solid #333;
       border-radius: 8px;
     }
@@ -58,22 +60,19 @@
 </head>
 
 <body>
-
 <div class="container">
   <!-- Webcam Section -->
   <div class="webcam-section">
     <h2>Live Webcam Monitor</h2>
-    <!-- <video id="webcam" src="/video_feed" alt="Webcam Feed" width="640" height="480" autoplay></video>\ -->
-    <!-- <img id="live_image" src="../cam_sc/temp.jpg" alt="Live Camera Feed" width="640" height="480"> -->
     <img id="live_image" src="/video_feed" alt="Live Camera Feed">
+    <!-- <video id="webcam" src="/video_feed" autoplay playsinline muted></video> -->
 
-    <button onclick="toggleWebcam()">Turn On/Off Webcam</button>
+    <button id="toggleButton" onclick="toggleWebcam()">Turn Off Webcam</button>
     <a id="poseText" style="text-align: center; font-size: 20px; margin-top: 20px;">
       Current Pose: Loading...
     </a>
   </div>
   
-
 
   <!-- Weather Section -->
   <div class="weather-section">
@@ -87,31 +86,32 @@
 
 <script>
 // Webcam control
-function toggleWebcam() {
-    var webcam = document.getElementById('webcam');
-    if (webcam.srcObject) {
-        webcam.srcObject.getTracks().forEach(track => track.stop());
-        webcam.srcObject = null;
-    } else {
-        // Set the video element's src to the Flask video feed
-        webcam.src = "http://localhost:5000/video_feed";
-    }
-}
+let isWebcamOn = true; // Webcam is initially ON
 
-// let stream = null;
+function toggleWebcam() {
+    fetch('/toggle_webcam', { method: 'POST' })
+    .then(response => response.json())
+    .then(data => {
+        isWebcamOn = data.webcam_on;
+        const toggleButton = document.getElementById('toggleButton');
+        const poseText = document.getElementById('poseText');
+
+        if (isWebcamOn) {
+            toggleButton.innerText = "Turn Off Webcam";
+        } else {
+            toggleButton.innerText = "Turn On Webcam";
+            poseText.innerText = "Webcam Off";  // Set pose text manually when off
+        }
+    });
+}
 // function toggleWebcam() {
-//     const video = document.getElementById('webcam');
-//     if (!stream) {
-//         navigator.mediaDevices.getUserMedia({ video: true })
-//             .then(s => {
-//                 stream = s;
-//                 video.srcObject = stream;
-//             })
-//             .catch(err => console.error("Error accessing webcam: ", err));
+//     var webcam = document.getElementById('webcam');
+//     if (webcam.srcObject) {
+//         webcam.srcObject.getTracks().forEach(track => track.stop());
+//         webcam.srcObject = null;
 //     } else {
-//         stream.getTracks().forEach(track => track.stop());
-//         video.srcObject = null;
-//         stream = null;
+//         // Set the video element's src to the Flask video feed
+//         webcam.src = "http://localhost:5000/video_feed";
 //     }
 // }
 
@@ -141,7 +141,7 @@ function fetchWeather() {
     }
 }
 function fetchPoseStatus() {
-    fetch('/pose_status')
+    fetch('/get_pose')
         .then(response => response.json())
         .then(data => {
             document.getElementById('poseText').innerText = "Current Pose: " + data.pose;
@@ -154,9 +154,12 @@ function fetchPoseStatus() {
         .catch(error => console.error('Error fetching pose status:', error));
 }
 
+
 setInterval(() => {
+  if ( isWebcamOn ) {
     const img = document.getElementById('live_image');
     img.src = '/video_feed?' + new Date().getTime(); // prevent cache
+  }
 }, 500);
 
 
@@ -166,12 +169,6 @@ setInterval(fetchPoseStatus, 1000);
 // Auto refresh weather every 30 minutes
 setInterval(fetchWeather, 30 * 60 * 1000);
 
-</script>
-
-<script>
-window.onload = function() {
-    toggleWebcam();
-};
 </script>
 
 </body>
