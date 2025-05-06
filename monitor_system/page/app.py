@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory, send_file , Response
-from datetime import datetime
+from datetime import datetime , timedelta
 import cv2
 import os
 import time
@@ -7,34 +7,41 @@ import threading
 import requests
 import nn_model.comfitness as cf
 from pose_model.RuleBasedFallDetector import RuleBasedFallDetector, PoseState
+import numpy as np
+import smtplib
+from email.mime.text import MIMEText
+from dotenv import load_dotenv
 
+black_img = np.zeros((480, 640, 3), dtype=np.uint8)
+cv2.imwrite('./page/static/black.jpg', black_img)
 
 app = Flask(__name__)
+load_dotenv() 
 
-UPLOAD_FOLDER = './cam_sc'
+UPLOAD_FOLDER = './page/cam_sc'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 TEMP_IMAGE_PATH = os.path.join(UPLOAD_FOLDER, 'temp.jpg')
-# Shared state
+# --- shared vari --- 
 latest_frame = None
 current_pose = "Unknown"
 fall_detected = False
 lock = threading.Lock()
 webcam_on = True
 last_saved = 0
-
-# detector = RuleBasedFallDetector(model_path='./pose_demo/yolo11n-pose.pt')
-
-# Create cam_sc folder if not exist
-if not os.path.exists('./page/cam_sc'):
-    os.makedirs('./page/cam_sc')
+last_email_time = None
+EMAIL_COOLDOWN_MINUTES = 10
 
 API_KEY = '3f9f172deb25f1fcb6045cd7a82f2b1c'  
 BASE_URL = 'https://api.openweathermap.org/data/2.5/weather'
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+RECIPIENT_EMAIL = os.getenv('RECIPIENT_EMAIL')
 
 def capture_camera():
-    cap = cv2.VideoCapture(0)  # Webcam
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 360)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 360)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 640)
     print("[INFO] Webcam stream started")
 
     last_saved_time = time.time()  # Track time for 2 FPS
@@ -48,11 +55,12 @@ def capture_camera():
         current_time = time.time()
         if current_time - last_saved_time >= 0.5:
             cv2.imwrite(TEMP_IMAGE_PATH, frame)  # Save image
-            print("[INFO] temp.jpg saved.")
+            # print("[INFO] temp.jpg saved.")
 
             last_saved_time = current_time
 
         time.sleep(0.01)  # Prevent tight loop
+
 
     cap.release()
     print("[INFO] Webcam stream stopped")
@@ -60,10 +68,10 @@ def capture_camera():
     # Delete image if it still exists
     if os.path.exists(TEMP_IMAGE_PATH):
         os.remove(TEMP_IMAGE_PATH)
-        print("[INFO] temp.jpg deleted.")
+        # print("[INFO] temp.jpg deleted.")
 
 def detect_pose():
-    global latest_frame, current_pose, fall_detected
+    global latest_frame, current_pose, fall_detected, last_email_time  
     detector = RuleBasedFallDetector(model_path='./pose_demo/yolo11n-pose.pt')
 
     while True:
@@ -80,6 +88,18 @@ def detect_pose():
                 with lock:
                     current_pose = str(pose)
                     fall_detected = (pose == PoseState.FALL)
+                    # sends alert
+                    fall_detected = True 
+                    if fall_detected:
+                        print("[INFO] FALL DETECTED ")
+                        now = datetime.now()   
+                        with lock :  # prevent multi-threading race condition
+                            if last_email_time is None or (now - last_email_time) > timedelta(minutes=EMAIL_COOLDOWN_MINUTES):
+                                last_email_time = now
+                                send_alert_email()
+                                print("Email alert sent.")
+                            else:
+                                print("Lying detected, but cooldown active. No email sent.")
             else:
                 with lock:
                     current_pose = "Waiting for frame..."
@@ -94,29 +114,6 @@ def detect_pose():
 
 def generate_frames():
     global latest_frame
-
-    # while True:
-    #     if not webcam_on:
-    #         time.sleep(0.1)
-    #         continue
-
-    #     with lock:
-    #         frame = latest_frame.copy() if latest_frame is not None else None
-
-    #     if frame is None:
-    #         time.sleep(0.1)
-    #         continue
-
-    #     ret, buffer = cv2.imencode('.jpg', frame)
-    #     if not ret:
-    #         continue
-
-    #     frame_bytes = buffer.tobytes()
-
-    #     yield (b'--frame\r\n'
-    #            b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-
-    # ---- NEW TYPE ----
     while True:
         if os.path.exists(TEMP_IMAGE_PATH):
             with open(TEMP_IMAGE_PATH, 'rb') as f:
@@ -125,6 +122,17 @@ def generate_frames():
                    b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
         time.sleep(0.5)
 
+def send_alert_email():
+    subject = 'ALERT: Fall Detected'
+    body = 'A person has been detected in a lying position. Please check immediately.'
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From'] = EMAIL_ADDRESS
+    msg['To'] = RECIPIENT_EMAIL
+
+    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        smtp.send_message(msg)
                    
 
 @app.route('/')
