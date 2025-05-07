@@ -33,7 +33,7 @@ cd your-repository-name/page
 Ensure you are using Python 3.8 or later. Then install required packages:
 
 ```
-pip install flask opencv-python requests python-dotenv
+pip install flask opencv-python Pillow requests python-dotenv torch numpy joblib ultralytics
 ```
 
 ### 3. Configure .env File
@@ -116,4 +116,17 @@ Health alerts based on weather conditions (updated every 30 minutes)
 "Turn Off Webcam" button to disable capture and reduce CPU usage
 
 Automatic email alert when a fall (e.g., "Lying") is detected
+
+---
+
+## `source/` Folder Structure
+This is the folder that contains all files that are used to develop health advisory output.
+
+- `data/comfitness_level.py`: Using heat index function to generate correct lables for training.
+- `data/comfortness_data_generate.py`: Generates correct labels from input random tempetures and random humidity levels to functions in `data/comfitness_level.py`.
+- `data/comfitness_training.csv`: Labels for training
+- `model/comfitness_level_NN.py`: Training of the feedforward nerual network.
+- `model/test_comfitness_nn.py`: Using model to produce predict results.
+- `compare_prediction.py`: Compare results from heat index function and predict results from trained nerual network. 
+ 
 
