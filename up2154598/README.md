@@ -125,8 +125,8 @@ This is the folder that contains all files that are used to develop health advis
 - `data/comfitness_level.py`: Using heat index function to generate correct lables for training.
 - `data/comfortness_data_generate.py`: Generates correct labels from input random tempetures and random humidity levels to functions in `data/comfitness_level.py`.
 - `data/comfitness_training.csv`: Labels for training
-- `model/comfitness_level_NN.py`: Training of the feedforward nerual network.
-- `model/test_comfitness_nn.py`: Using model to produce predict results.
+- `comfitness_level_NN.py`: Training of the feedforward nerual network.
+- `test_comfitness_nn.py`: Using model to produce predict results.
 - `compare_prediction.py`: Compare results from heat index function and predict results from trained nerual network. 
  
 
