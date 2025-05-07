@@ -95,19 +95,19 @@ class RuleBasedFallDetector:
         ts = time.time()
         res, kpts, box = self._extract_pose(frame)
         if kpts is None:
-            # 检测失败：按需求可选择返回上一次状态或 NONE
+            # detection failed: return to previous pose or return NONE
             return res, self.state
 
-        torso_ang  = self._torso_angle(kpts)  # 弧度
+        torso_ang  = self._torso_angle(kpts)  # arc
         hw_ratio   = self._box_hw_ratio(box)  # h / w
 
         dy, vy = self._vertical_features(kpts, ts)
         self._state_machine(torso_ang, hw_ratio, dy, vy, ts)
         return res, self.state
 
-    # ---------- 内部辅助 ----------
+    # ---------- Internal  ----------
     def _extract_pose(self, frame):
-        """返回关键点 ndarray (17,2) 和检测框 [x1,y1,x2,y2]; 若失败返回 (None, None, None)."""
+        """Return Key Point ndarray (17,2)  |  [x1,y1,x2,y2]; if failed, the return (None, None, None)."""
         res = self.model.predict(frame, verbose=False)[0]
         kpts = res.keypoints.data
         if torch.isnan(kpts).any():
@@ -117,12 +117,12 @@ class RuleBasedFallDetector:
         if not res or res.keypoints.shape[0] == 0:
             return res, None, None
 
-        # 仅取置信度最高的一个人
+        # only take the one with highest value 
         idx = int(torch.argmax(res.boxes.conf))
         kpts = res.keypoints.xy[idx].cpu().numpy()       # (17,2)
         conf = res.keypoints.conf[idx].cpu().numpy()     # (17,)
 
-        # 置信度过滤
+        
         idx   = int(torch.argmax(res.boxes.conf))
         kpts  = res.keypoints.xy[idx].cpu().numpy()
         conf  = res.keypoints.conf[idx].cpu().numpy()
@@ -134,7 +134,7 @@ class RuleBasedFallDetector:
         return res, kpts, box
 
     def _torso_angle(self, kpts):
-        """脖子(鼻尖近似)到髋部中心向量与竖直夹角 (rad)."""
+        """Neck (nose tip approximation) to hip centre vector with vertical angle (rad)."""
         neck     = kpts[self.NOSE]
         mid_hip  = np.nanmean(kpts[[self.L_HIP, self.R_HIP]], axis=0)
         v        = neck - mid_hip
@@ -150,12 +150,12 @@ class RuleBasedFallDetector:
         mid_hip = np.nanmean(kpts[[self.L_HIP, self.R_HIP]], axis=0)
         y = mid_hip[1] / max(1.0, kpts[:, 1].max())
         self._buf.append((y, ts))
-        # ---- 位移阈值 ----
+        # ---- displacement threshold ----
         self._win_05s.append((y, ts))
         while ts - self._win_05s[0][1] > 0.5:
             self._win_05s.popleft()
         dy_05s = y - min(v for v, _ in self._win_05s)
-        # ---- 中位速度 ----
+        # ---- medium speed ----
         if len(self._buf) >= 3:
             vy = np.median([(self._buf[i+1][0]-self._buf[i][0]) /
                             (self._buf[i+1][1]-self._buf[i][1] + 1e-3)
@@ -174,8 +174,8 @@ class RuleBasedFallDetector:
         elif self.state == PoseState.DESCENT:
             if ang > self.ly_ang and ratio < self.ly_ratio:
                 self.state = PoseState.LYING
-                self._t_lying_start = ts            # 记录进入 LYING 的时刻
-            elif ang < self.upr_ang:                # 误触
+                self._t_lying_start = ts            # save the time of first LYING pose
+            elif ang < self.upr_ang:                # accidental triggered the descent pose
                 self.state = PoseState.STAND
 
         # -------- LYING --------
@@ -185,8 +185,8 @@ class RuleBasedFallDetector:
             )
             if still_lying:
                 if ts - self._t_lying_start >= self.t_lying:
-                    self.state = PoseState.FALL     # 满足“平躺 ≥ t_lying 秒”
-            else:                                   # 起身或误判
+                    self.state = PoseState.FALL     # LYING ≥ t_lying s
+            else:                                   # stand up or false true
                 self.state = PoseState.STAND
 
         # -------- FALL --------
