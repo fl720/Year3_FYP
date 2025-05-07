@@ -6,10 +6,12 @@ This project is a real-time monitoring and alert system aimed at protecting high
 
 ## `page/` Folder Structure
 
-The `page/` directory contains the full application:
+The `page/` directory contains the full application  
+
+(You can just download the `page/` folder and run the app.py with the same environment which will be listed later):
 
 - `app.py`: Main Flask web server that serves the webpage, controls webcam input, triggers pose detection, fetches weather data, and handles email alerts.
-- `templates/index.html`: The frontend HTML page for the user interface.
+- `static/index.html`: The frontend HTML page for the user interface.
 - `static/black.jpg`: Placeholder image displayed when the webcam is turned off.
 - `cam_sc/temp.jpg`: Continuously updated screenshot from the webcam.
 - `pose_model.py`: Contains the logic for loading and applying the pose detection model (e.g., CNN).
@@ -24,48 +26,74 @@ The `page/` directory contains the full application:
 ```bash
 git clone <your-repository-url>
 cd your-repository-name/page
+```
 
 
- Install Dependencies
+### 2. Install Dependencies
 Ensure you are using Python 3.8 or later. Then install required packages:
 
-bash
-Copy
-Edit
-pip install -r requirements.txt
-Alternatively, if requirements.txt is not present, install manually:
-
-bash
-Copy
-Edit
+```
 pip install flask opencv-python requests python-dotenv
-3. Configure .env File
-Create a file named .env in the root directory (same level as page/). It is required for sending email alerts:
+```
 
-ini
-Copy
-Edit
-SENDER_EMAIL=your_sender_email@example.com
-SENDER_PASSWORD=your_email_password
-RECEIVER_EMAIL=recipient_email@example.com
+### 3. Configure .env File
+The .env file stores sensitive configuration details such as email credentials. It is required for the email alert function to work properly.
+
+You must create a .env file in the root of the project (same level as page/) and include the following environment variables:
+
+```
+SENDER_EMAIL    = your_sender_email@example.com
+SENDER_PASSWORD = your_email_password
+RECEIVER_EMAIL  = recipient_email@example.com
+```
+
 ⚠️ Your email credentials are never shared or uploaded to version control.
-For Gmail, consider using an App Password instead of your real password.
 
-▶️ Run the Application
+**If you are using Gmail, using an App Password instead of your real password.**
+
+#### 🔐 Step-by-Step of how to get the App password for Gmail :
+Enable 2-Step Verification (if you haven’t already)
+
+- Go to your Google Account
+
+- Navigate to Security > 2-Step Verification
+
+- Enable it
+
+Generate an App Password
+
+- After enabling 2FA, go back to Security
+
+- Scroll to “Signing in to Google”
+
+- Click App passwords
+
+- Sign in again
+
+- Under “Select app”, choose Other (Custom) and name it like Flask Email Alert
+
+- Click Generate
+
+Google will give you a 16-character password
+
+- Example: abcd efgh ijkl mnop
+
+## Run the Application
 Navigate into the page/ directory and run the app:
 
-bash
-Copy
-Edit
+```
 cd page
 python app.py
+```
+
 Then visit the app in your browser at:
 
-cpp
-Copy
-Edit
+```
 http://127.0.0.1:5000/
-📦 External Tools and Dependencies
+```
+For personal security purpose, the web page will only be able to access locally. 
+
+## External Tools and Dependencies
 The project relies on the following external libraries and tools:
 
 Flask – For serving the web application
@@ -78,8 +106,8 @@ python-dotenv – To load sensitive environment variables from .env
 
 HTML/CSS/JavaScript – For frontend interface and auto-refresh logic
 
-🔁 System Features
-Live webcam feed with automatic screenshot updates every 250 ms
+## System Features
+Live webcam feed with automatic screenshot updates every 500 ms (2FPS)
 
 AI pose detection with real-time fall detection
 
