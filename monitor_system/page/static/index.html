@@ -155,11 +155,15 @@ setInterval(() => {
     const img = document.getElementById('live_image');
     img.src = '/video_feed?' + new Date().getTime(); // prevent cache
   }
-}, 250);
+}, 500);
 
 
 // Fetch pose every 1s
-setInterval(fetchPoseStatus, 250);
+setInterval(() => {
+  if (isWebcamOn) {
+    fetchPoseStatus();
+  }
+}, 500);
 
 // Auto refresh weather every 30 minutes
 window.addEventListener('DOMContentLoaded', fetchWeather);
