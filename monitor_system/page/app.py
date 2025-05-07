@@ -73,6 +73,9 @@ def capture_camera():
 def detect_pose():
     global latest_frame, current_pose, fall_detected, last_email_time  
     detector = RuleBasedFallDetector(model_path='./pose_demo/yolo11n-pose.pt')
+    fall_email_sent = False  # Track whether we've already sent the alert for this fall
+
+    print("[INFO] Pose detection thread started")
 
     while True:
         if not webcam_on:
@@ -88,18 +91,19 @@ def detect_pose():
                 with lock:
                     current_pose = str(pose)
                     fall_detected = (pose == PoseState.FALL)
-                    # sends alert
-                    fall_detected = True 
-                    if fall_detected:
-                        print("[INFO] FALL DETECTED ")
-                        now = datetime.now()   
-                        with lock :  # prevent multi-threading race condition
-                            if last_email_time is None or (now - last_email_time) > timedelta(minutes=EMAIL_COOLDOWN_MINUTES):
-                                last_email_time = now
-                                send_alert_email()
-                                print("Email alert sent.")
-                            else:
-                                print("Lying detected, but cooldown active. No email sent.")
+                    # fall_detected = True
+
+                    if fall_detected and not fall_email_sent:
+                        now = datetime.now()
+                        if last_email_time is None or (now - last_email_time) > timedelta(minutes=EMAIL_COOLDOWN_MINUTES):
+                            last_email_time = now
+                            send_alert_email()
+                            print("[INFO] Email alert sent.")
+                            fall_email_sent = True
+                        else:
+                            print("[INFO] Lying detected, but cooldown active. No email sent.")
+                    elif not fall_detected:
+                        fall_email_sent = False  # Reset flag if pose returns to normal
             else:
                 with lock:
                     current_pose = "Waiting for frame..."
@@ -123,6 +127,7 @@ def generate_frames():
         time.sleep(0.5)
 
 def send_alert_email():
+    print("[INFO] Preparing to send email...")
     subject = 'ALERT: Fall Detected'
     body = 'A person has been detected in a lying position. Please check immediately.'
     msg = MIMEText(body)
@@ -130,9 +135,13 @@ def send_alert_email():
     msg['From'] = EMAIL_ADDRESS
     msg['To'] = RECIPIENT_EMAIL
 
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-        smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-        smtp.send_message(msg)
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+            smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+            smtp.send_message(msg)
+            print("[INFO] Email sent successfully.")
+    except Exception as e:
+        print(f"[Email Error]: {e}")
                    
 
 @app.route('/')
@@ -218,4 +227,6 @@ def serve_cam_sc(filename):
 if __name__ == '__main__':
     threading.Thread(target=capture_camera, daemon=True).start()
     threading.Thread(target=detect_pose, daemon=True).start()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # ------ only local request -----
+    app.run(debug=True, host='127.0.0.1', port=5000)
+

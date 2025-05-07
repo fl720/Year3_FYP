@@ -162,6 +162,7 @@ setInterval(() => {
 setInterval(fetchPoseStatus, 250);
 
 // Auto refresh weather every 30 minutes
+window.addEventListener('DOMContentLoaded', fetchWeather);
 setInterval(fetchWeather, 30 * 60 * 1000);
 
 </script>
